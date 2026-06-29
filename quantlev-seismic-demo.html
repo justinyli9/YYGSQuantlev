@@ -4,60 +4,103 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>QuantLev — Seismic Isolation Demonstrator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Saira:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-  /* ---------- QuantLev "cryo lab console" design tokens ----------
-     Palette: deep blue-black room, cryogenic cyan for the levitated
-     system, warm amber for the conventional structure, red for failure.
-     All quantitative readouts are monospace, like a seismograph console.  */
+  /* ---------- QuantLev "cryo seismic station" design tokens ----------
+     A cryogenic seismic-isolation test bay console. Cold graphite room,
+     superconductor cyan for the levitated system, warm amber for the
+     conventional structure, red for failure. Display type is condensed
+     station signage (Saira Condensed); every datum is IBM Plex Mono so the
+     panel reads like real monitoring instrumentation.  */
   :root{
-    --bg:#080b12;
-    --bg2:#0d121d;
-    --panel:#111827;
-    --panel-line:#1f2a3d;
-    --ink:#dce6f5;
-    --muted:#7b8aa6;
-    --cyan:#37e0d8;     /* QuantLev / superconductor glow */
-    --cyan-soft:#1b8f93;
-    --amber:#f2a23c;    /* conventional structure */
+    --bg:#070a10;
+    --bg2:#0b0f17;
+    --panel:#0e131d;
+    --panel-2:#111826;
+    --panel-line:#1c2533;
+    --hair:rgba(124,162,200,0.10);
+    --ink:#e7eef8;
+    --muted:#6c7c95;
+    --cyan:#34e4d0;     /* QuantLev / superconductor glow */
+    --cyan-soft:#198f93;
+    --amber:#f4a23a;    /* conventional structure */
     --amber-soft:#7a5320;
-    --red:#ff5658;      /* failure / resonance */
-    --grid:#16202f;
-    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
-    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --red:#ff5a5d;      /* failure / resonance */
+    --grid:rgba(124,162,200,0.045);
+    --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    --disp:"Saira Condensed", "Saira", system-ui, sans-serif;
+    --sans:"Saira", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; }
   body{
     background:
-      radial-gradient(1200px 600px at 50% -10%, #101a2b 0%, var(--bg) 60%) fixed,
+      radial-gradient(1100px 560px at 50% -12%, #0f1726 0%, rgba(15,23,38,0) 60%) fixed,
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 34px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/34px 100%,
       var(--bg);
     color:var(--ink);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
-    padding:18px clamp(12px,3vw,32px) 28px;
+    padding:20px clamp(12px,3vw,32px) 34px;
   }
   .wrap{ max-width:1180px; margin:0 auto; }
 
-  /* ---------- header ---------- */
-  header{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
-  .logo{
-    font-family:var(--mono); font-weight:700; letter-spacing:.22em;
-    font-size:13px; color:var(--cyan);
-    border:1px solid var(--cyan-soft); border-radius:4px;
-    padding:5px 9px; text-transform:uppercase;
-    box-shadow:0 0 18px -6px var(--cyan);
+  /* ---------- station header ---------- */
+  header{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    padding-bottom:14px; margin-bottom:16px;
+    border-bottom:1px solid var(--panel-line);
   }
-  h1{ font-size:clamp(18px,2.4vw,24px); font-weight:600; margin:0; letter-spacing:.01em; }
-  h1 span{ color:var(--muted); font-weight:400; }
-  .sub{ width:100%; color:var(--muted); font-size:13px; margin-top:2px; }
+  .badge{
+    font-family:var(--mono); font-weight:600; letter-spacing:.16em;
+    font-size:13px; color:var(--cyan); align-self:stretch; display:flex; align-items:center;
+    border:1px solid var(--cyan-soft); border-radius:5px;
+    padding:0 11px; text-transform:uppercase;
+    box-shadow:0 0 22px -8px var(--cyan), inset 0 0 14px -10px var(--cyan);
+  }
+  .ident{ display:flex; flex-direction:column; gap:2px; }
+  .ident .code{ font-family:var(--mono); font-size:11px; letter-spacing:.13em; color:var(--ink); }
+  .ident .coord{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--muted); }
+  .title{
+    font-family:var(--disp); font-weight:700; text-transform:uppercase;
+    font-size:clamp(22px,3.3vw,38px); line-height:.95; letter-spacing:.01em;
+    margin:0 auto 0 4px; color:var(--ink);
+  }
+  .title em{ font-style:normal; color:var(--cyan); }
+  .live{
+    font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--cyan); display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--panel-line); border-radius:999px; padding:6px 12px;
+    background:var(--panel);
+  }
+  .live .dot{ width:8px; height:8px; border-radius:50%; background:var(--cyan);
+    box-shadow:0 0 0 0 var(--cyan); animation:ping 1.8s ease-out infinite; }
+  @keyframes ping{
+    0%{ box-shadow:0 0 0 0 rgba(52,228,208,.55); }
+    70%{ box-shadow:0 0 0 7px rgba(52,228,208,0); }
+    100%{ box-shadow:0 0 0 0 rgba(52,228,208,0); }
+  }
+  .sub{ width:100%; color:var(--muted); font-size:13.5px; margin:10px 0 0; letter-spacing:.01em; }
+  .sub b{ color:var(--amber); font-weight:500; }
 
   /* ---------- stage ---------- */
   .stage{
     position:relative; border:1px solid var(--panel-line); border-radius:12px;
-    background:linear-gradient(180deg,#0b1322,#070a11);
+    background:linear-gradient(180deg,#0a1120,#06090f);
     overflow:hidden;
+    box-shadow:0 18px 50px -28px #000, inset 0 1px 0 rgba(255,255,255,.03);
   }
+  /* registration corner ticks — instrument framing */
+  .stage::before, .stage::after{
+    content:""; position:absolute; width:16px; height:16px; pointer-events:none; z-index:2;
+    border:1.5px solid var(--cyan-soft); opacity:.6;
+  }
+  .stage::before{ left:9px; top:9px; border-right:0; border-bottom:0; }
+  .stage::after{ right:9px; bottom:9px; border-left:0; border-top:0; }
   canvas{ display:block; width:100%; height:auto; }
   .stage-flash{
     position:absolute; inset:0; pointer-events:none;
@@ -65,20 +108,40 @@
   }
   .stage-flash.on{ box-shadow:inset 0 0 80px -10px var(--red); }
 
+  /* ---------- signature: live seismograph trace ---------- */
+  .recorder{
+    margin-top:10px; border:1px solid var(--panel-line); border-radius:12px;
+    background:linear-gradient(180deg,#0a0f18,#080b11); overflow:hidden;
+  }
+  .recorder-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:9px 14px; border-bottom:1px solid var(--panel-line);
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+  }
+  .rec-title{ color:var(--muted); }
+  .rec-legend{ display:flex; align-items:center; gap:14px; color:var(--ink); }
+  .rec-legend i{ display:inline-block; width:18px; height:2px; margin-right:7px; vertical-align:middle; border-radius:2px; }
+  .rec-legend i.amber{ background:var(--amber); box-shadow:0 0 8px -1px var(--amber); }
+  .rec-legend i.cyan{ background:var(--cyan); box-shadow:0 0 8px -1px var(--cyan); }
+  #trace{ display:block; width:100%; height:auto; }
+
   /* ---------- readouts ---------- */
   .readouts{
     display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0;
   }
   .gauge{
-    background:var(--panel); border:1px solid var(--panel-line); border-radius:10px;
-    padding:11px 13px;
+    position:relative; background:var(--panel); border:1px solid var(--panel-line);
+    border-radius:10px; padding:12px 14px 12px 16px; overflow:hidden;
   }
-  .gauge .k{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
-  .gauge .v{ font-family:var(--mono); font-size:22px; margin-top:3px; font-variant-numeric:tabular-nums; }
-  .gauge .u{ font-size:11px; color:var(--muted); margin-left:3px; }
+  .gauge::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--panel-line); }
+  .gauge.conv::before{ background:var(--amber); }
+  .gauge.quant::before{ background:var(--cyan); }
+  .gauge .k{ font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  .gauge .v{ font-family:var(--mono); font-weight:500; font-size:26px; margin-top:4px; font-variant-numeric:tabular-nums; line-height:1; }
+  .gauge .u{ font-size:11px; color:var(--muted); margin-left:4px; }
   .gauge.conv .v{ color:var(--amber); }
   .gauge.quant .v{ color:var(--cyan); }
-  .status{ font-family:var(--mono); font-size:12px; letter-spacing:.1em; margin-top:5px; }
+  .status{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; margin-top:7px; text-transform:uppercase; }
   .status.ok{ color:var(--cyan); }
   .status.warn{ color:var(--amber); }
   .status.bad{ color:var(--red); }
@@ -86,56 +149,79 @@
   /* ---------- controls ---------- */
   .controls{
     background:var(--panel); border:1px solid var(--panel-line); border-radius:12px;
-    padding:16px clamp(12px,2.5vw,22px); display:grid; gap:18px;
+    padding:18px clamp(12px,2.5vw,22px); display:grid; gap:18px;
     grid-template-columns:auto 1fr 1fr auto; align-items:center;
   }
   button{
-    font-family:var(--sans); cursor:pointer; border-radius:9px; border:1px solid transparent;
-    font-size:14px; font-weight:600; padding:13px 20px; color:var(--bg);
+    font-family:var(--disp); cursor:pointer; border-radius:9px; border:1px solid transparent;
+    font-size:15px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    padding:13px 22px; color:#04121a;
     transition:transform .06s, filter .15s, background .15s;
   }
   button:active{ transform:translateY(1px); }
-  .btn-shake{ background:var(--cyan); box-shadow:0 0 26px -8px var(--cyan); min-width:120px; }
+  .btn-shake{ background:var(--cyan); box-shadow:0 0 26px -8px var(--cyan); min-width:130px; }
+  .btn-shake:hover{ filter:brightness(1.06); }
   .btn-shake.running{ background:var(--amber); box-shadow:0 0 26px -8px var(--amber); }
   .btn-reset{ background:transparent; color:var(--muted); border-color:var(--panel-line); }
-  .btn-reset:hover{ color:var(--ink); }
+  .btn-reset:hover{ color:var(--ink); border-color:var(--cyan-soft); }
   button:focus-visible, input:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
 
-  .field label{ display:block; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
-  .field .row{ display:flex; align-items:center; gap:10px; }
-  .field .val{ font-family:var(--mono); font-size:14px; color:var(--ink); min-width:62px; text-align:right; }
+  .field label{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .field .row{ display:flex; align-items:center; gap:12px; }
+  .field .val{ font-family:var(--mono); font-size:14px; color:var(--ink); min-width:66px; text-align:right; font-variant-numeric:tabular-nums; }
   input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:3px;
     background:linear-gradient(90deg,var(--cyan-soft),var(--panel-line)); }
   input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
     background:var(--cyan); border:3px solid #08111a; box-shadow:0 0 10px -2px var(--cyan); cursor:pointer; }
   input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--cyan); border:3px solid #08111a; cursor:pointer; }
-  .freq-hint{ font-size:11px; color:var(--muted); margin-top:6px; min-height:14px; }
+  .freq-hint{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--muted); margin-top:7px; min-height:14px; }
   .freq-hint b{ color:var(--red); }
 
-  .fail-toggle{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink); user-select:none; cursor:pointer; }
+  .fail-toggle{ display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); user-select:none; cursor:pointer; }
   .fail-toggle input{ width:17px; height:17px; accent-color:var(--red); cursor:pointer; }
 
-  .note{ color:var(--muted); font-size:12px; margin-top:12px; line-height:1.5; }
+  .note{ color:var(--muted); font-size:12.5px; margin-top:14px; line-height:1.6; }
+  .note b{ color:var(--ink); font-weight:500; }
+
+  @media (prefers-reduced-motion: reduce){
+    .live .dot{ animation:none; }
+  }
 
   @media (max-width:760px){
+    header{ gap:12px; }
+    .title{ font-size:24px; margin:0; width:100%; order:3; }
     .readouts{ grid-template-columns:repeat(2,1fr); }
     .controls{ grid-template-columns:1fr 1fr; }
     .controls .field{ grid-column:1 / -1; }
     .btn-shake{ grid-column:1; } .btn-reset{ grid-column:2; }
+    .rec-title{ display:none; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <span class="logo">QuantLev</span>
-    <h1>Seismic Isolation Demonstrator <span>· levitated vs. fixed-base</span></h1>
-    <p class="sub">Start the shaking, then sweep the frequency toward 1.0 Hz to drive the conventional structure into resonance.</p>
+    <span class="badge">QuantLev</span>
+    <div class="ident">
+      <div class="code">STATION QLEV-01 · ISOLATION TEST BAY</div>
+      <div class="coord">37.4274°N 122.1697°W · FLUX-PINNED HTS ARRAY</div>
+    </div>
+    <h1 class="title">Seismic Isolation <em>Demonstrator</em></h1>
+    <span class="live"><span class="dot"></span> Monitoring</span>
+    <p class="sub">Start the shaking, then sweep the drive toward <b>1.0 Hz</b> to walk the conventional tower into resonance — and watch the levitated structure hold the line.</p>
   </header>
 
   <div class="stage">
     <canvas id="c"></canvas>
     <div class="stage-flash" id="flash"></div>
+  </div>
+
+  <div class="recorder">
+    <div class="recorder-head">
+      <span class="rec-title">Ground-referenced top motion · live trace</span>
+      <span class="rec-legend"><span><i class="amber"></i>Conventional</span><span><i class="cyan"></i>QuantLev</span></span>
+    </div>
+    <canvas id="trace"></canvas>
   </div>
 
   <div class="readouts">
@@ -188,11 +274,13 @@
   </div>
 
   <p class="note">
-    Displacement values are illustrative, scaled to read like a console rather than exact field measurements.
-    The conventional building uses a single-degree-of-freedom model with a 1.0 Hz natural frequency and light damping,
-    so it amplifies sharply at resonance. QuantLev is modeled as a near-frictionless isolation layer, so the ground
-    slides beneath it while the structure stays close to fixed in space. Cooling failure removes the levitation gap
-    and the building behaves like the conventional one.
+    <b>Reading the trace:</b> the strip records each tower's top motion in the world frame. The conventional
+    structure (amber) is a single-degree-of-freedom model tuned to a 1.0 Hz natural frequency with light damping,
+    so it amplifies sharply at resonance. QuantLev (cyan) rides an ultra-soft, flux-pinned isolation layer — the
+    ground slides beneath it while inertia holds the structure nearly fixed, so its trace stays close to the baseline.
+    <b>Simulate cooling failure</b> to remove the levitation gap; the isolation collapses and the building behaves
+    like the conventional one. Displacement values are illustrative, scaled to read like a console rather than exact
+    field measurements.
   </p>
 </div>
 
@@ -204,9 +292,9 @@
   // ---------------------------------------------------------------
   const CONV_FN   = 1.0;   // conventional natural frequency (Hz) -> resonance target
   const CONV_ZETA = 0.035; // conventional damping (lower = more violent resonance)
-  const ISO_FN    = 0.05;  // QuantLev isolation frequency (Hz) -> ultra-soft = near-perfect isolation
-  const ISO_ZETA  = 0.05;  // QuantLev damping (low -> almost no ground motion transmitted)
-  const ENV_TAU   = 0.75;  // ground-motion ramp time constant (s) -> kills the startup kick
+  const ISO_FN    = 0.10;  // QuantLev isolation frequency (Hz) -> very soft suspension
+  const ISO_ZETA  = 0.75;  // QuantLev SKYHOOK damping (damps absolute motion -> fast settle, no HF penalty)
+  const ENV_TAU   = 0.6;   // ground-motion ramp time constant (s) -> eases the onset
   const PX_PER_CM = 3.2;   // display scale for readouts
   const U_FAIL_FRAC = 0.42;// conventional fails when drift exceeds this fraction of its height
   const FLOORS = 8;
@@ -217,9 +305,15 @@
   const cv = document.getElementById("c");
   const ctx = cv.getContext("2d");
   const flash = document.getElementById("flash");
+  const tcv = document.getElementById("trace");
+  const tctx = tcv.getContext("2d");
 
   // ---- state ----
   let W=0, H=0, dpr=1;
+  let TW=0, TH=0;                   // seismograph trace strip size (css px)
+  const traceC=[], traceQ=[];      // rolling samples: conventional / quantlev top motion (px)
+  const TRACE_STEP=2;              // horizontal px per recorded sample
+  let lastConvAbs=0, lastQuantAbs=0; // most recent top absolute displacement (px)
   let running=false, t=0, lastTs=0;
   let magG=0.40, freq=0.80;        // magnitude in g, frequency in Hz
   let failed=false;                // cooling failure engaged
@@ -257,6 +351,14 @@
     cv.height = Math.round(cssH*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
     W = cssW; H = cssH;
+
+    // seismograph trace strip
+    const tH = Math.round(Math.max(96, Math.min(150, cssW*0.12)));
+    tcv.style.height = tH+"px";
+    tcv.width  = Math.round(cssW*dpr);
+    tcv.height = Math.round(tH*dpr);
+    tctx.setTransform(dpr,0,0,dpr,0,0);
+    TW = cssW; TH = tH;
   }
   window.addEventListener("resize", resize);
 
@@ -273,26 +375,32 @@
     // that would set the soft QuantLev isolator swinging at start.
     env += (( running ? 1 : 0 ) - env) * Math.min(1, dt/ENV_TAU);
     if(env<0.0005 && !running) env=0;
-    const s = Math.sin(w*t);
+    const s = Math.sin(w*t), c = Math.cos(w*t);
     xg = Apx*env*s;
     const ag = -Apx*env*w*w*s;  // ground acceleration (px/s^2)
+    const vg =  Apx*env*w*c;    // ground velocity     (px/s)
 
-    // conventional building (fixed base): always coupled, resonant at CONV_FN
-    integrate(conv, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA);
+    // conventional building (fixed base): damps relative to its own base,
+    // so it amplifies hard at resonance.  (skyVel = 0 -> standard relative damping)
+    integrate(conv, dt, ag, 0, 2*Math.PI*CONV_FN, CONV_ZETA);
 
     // QuantLev: isolated unless cooling has failed
     if(failed){
-      integrate(quant, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA*1.4);
+      integrate(quant, dt, ag, 0, 2*Math.PI*CONV_FN, CONV_ZETA*1.4);
     }else{
-      integrate(quant, dt, ag, 2*Math.PI*ISO_FN, ISO_ZETA);
+      // SKYHOOK: damping acts on the structure's ABSOLUTE velocity (v+vg),
+      // i.e. against inertial space, like an active maglev stabilizer. This
+      // kills the soft-suspension transient quickly without re-coupling to the
+      // ground at high frequency, so the building settles AND barely transmits.
+      integrate(quant, dt, ag, vg, 2*Math.PI*ISO_FN, ISO_ZETA);
     }
   }
 
-  function integrate(b, dt, ag, wn, zeta){
+  function integrate(b, dt, ag, skyVel, wn, zeta){
     // substep for stability near resonance
     const N=4, h=dt/N;
     for(let i=0;i<N;i++){
-      const acc = -2*zeta*wn*b.v - wn*wn*b.u - ag;
+      const acc = -2*zeta*wn*(b.v + skyVel) - wn*wn*b.u - ag;
       b.v += acc*h;
       b.u += b.v*h;
     }
@@ -337,6 +445,50 @@
     const qAbs = failed ? xg : (xg + quant.u);
     drawBuilding(xR, groundY-gap, bw, bh, qAbs, 0, getCss("--cyan"), false, !failed);
     if(!failed) drawGap(xR, groundY, bw, gap, qAbs);
+
+    // feed the seismograph: top-of-structure motion in the world frame
+    lastConvAbs = xg + conv.u;
+    lastQuantAbs = qAbs;
+  }
+
+  // ---------------------------------------------------------------
+  // signature — live dual-trace seismograph strip
+  // ---------------------------------------------------------------
+  function pushTrace(){
+    const maxN = Math.ceil(TW/TRACE_STEP)+2;
+    traceC.push(lastConvAbs); traceQ.push(lastQuantAbs);
+    while(traceC.length>maxN){ traceC.shift(); traceQ.shift(); }
+  }
+
+  function drawTrace(){
+    tctx.clearRect(0,0,TW,TH);
+    const mid = TH/2, band = TH*0.40, KNEE = 80;
+    // tanh soft-clip: small motion stays ~linear, large peaks compress smoothly
+    // toward the band edge instead of flat-topping, like a real seismograph.
+    const map = v => mid - band*Math.tanh(v/KNEE);
+    // faint scrolling grid + centerline (drum-recorder feel)
+    tctx.lineWidth=1;
+    tctx.strokeStyle = withAlpha(getCss("--ink"),0.035);
+    for(let gx=TW%40; gx<TW; gx+=40){ tctx.beginPath(); tctx.moveTo(gx,0); tctx.lineTo(gx,TH); tctx.stroke(); }
+    tctx.strokeStyle = withAlpha(getCss("--ink"),0.13);
+    tctx.beginPath(); tctx.moveTo(0,mid); tctx.lineTo(TW,mid); tctx.stroke();
+
+    const poly = (arr,color,lw,glow)=>{
+      const n=arr.length; if(n<2) return;
+      tctx.save();
+      tctx.lineWidth=lw; tctx.strokeStyle=color; tctx.lineJoin="round"; tctx.lineCap="round";
+      if(glow){ tctx.shadowColor=color; tctx.shadowBlur=9; }
+      tctx.beginPath();
+      for(let i=0;i<n;i++){
+        const x = TW - (n-1-i)*TRACE_STEP;
+        const y = map(arr[i]);
+        i? tctx.lineTo(x,y) : tctx.moveTo(x,y);
+      }
+      tctx.stroke();
+      tctx.restore();
+    };
+    poly(traceC, getCss("--amber"), 1.6, false);   // conventional: the wild trace
+    poly(traceQ, getCss("--cyan"), 2.0, true);      // quantlev: the flat line, glowing on top
   }
 
   function drawGround(groundY){
@@ -506,6 +658,8 @@
     if(running) t+=dt;
     step(dt);
     draw();
+    pushTrace();
+    drawTrace();
     updateReadouts();
     requestAnimationFrame(frame);
   }
@@ -526,6 +680,7 @@
     running=false; t=0; xg=0; env=0; failed=false;
     Object.assign(conv,{u:0,v:0,peak:0,broken:false});
     Object.assign(quant,{u:0,v:0,peak:0});
+    traceC.length=0; traceQ.length=0; lastConvAbs=0; lastQuantAbs=0;
     document.getElementById("fail").checked=false;
     shakeBtn.textContent="Start shaking"; shakeBtn.classList.remove("running");
     shakeBtn.setAttribute("aria-pressed","false");
