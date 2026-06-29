@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuantLev — Seismic Isolation Demonstrator</title>
+<style>
+  /* ---------- QuantLev "cryo lab console" design tokens ----------
+     Palette: deep blue-black room, cryogenic cyan for the levitated
+     system, warm amber for the conventional structure, red for failure.
+     All quantitative readouts are monospace, like a seismograph console.  */
+  :root{
+    --bg:#080b12;
+    --bg2:#0d121d;
+    --panel:#111827;
+    --panel-line:#1f2a3d;
+    --ink:#dce6f5;
+    --muted:#7b8aa6;
+    --cyan:#37e0d8;     /* QuantLev / superconductor glow */
+    --cyan-soft:#1b8f93;
+    --amber:#f2a23c;    /* conventional structure */
+    --amber-soft:#7a5320;
+    --red:#ff5658;      /* failure / resonance */
+    --grid:#16202f;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #101a2b 0%, var(--bg) 60%) fixed,
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    padding:18px clamp(12px,3vw,32px) 28px;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; }
+
+  /* ---------- header ---------- */
+  header{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .logo{
+    font-family:var(--mono); font-weight:700; letter-spacing:.22em;
+    font-size:13px; color:var(--cyan);
+    border:1px solid var(--cyan-soft); border-radius:4px;
+    padding:5px 9px; text-transform:uppercase;
+    box-shadow:0 0 18px -6px var(--cyan);
+  }
+  h1{ font-size:clamp(18px,2.4vw,24px); font-weight:600; margin:0; letter-spacing:.01em; }
+  h1 span{ color:var(--muted); font-weight:400; }
+  .sub{ width:100%; color:var(--muted); font-size:13px; margin-top:2px; }
+
+  /* ---------- stage ---------- */
+  .stage{
+    position:relative; border:1px solid var(--panel-line); border-radius:12px;
+    background:linear-gradient(180deg,#0b1322,#070a11);
+    overflow:hidden;
+  }
+  canvas{ display:block; width:100%; height:auto; }
+  .stage-flash{
+    position:absolute; inset:0; pointer-events:none;
+    box-shadow:inset 0 0 0 0 var(--red); transition:box-shadow .15s; border-radius:12px;
+  }
+  .stage-flash.on{ box-shadow:inset 0 0 80px -10px var(--red); }
+
+  /* ---------- readouts ---------- */
+  .readouts{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0;
+  }
+  .gauge{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:10px;
+    padding:11px 13px;
+  }
+  .gauge .k{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+  .gauge .v{ font-family:var(--mono); font-size:22px; margin-top:3px; font-variant-numeric:tabular-nums; }
+  .gauge .u{ font-size:11px; color:var(--muted); margin-left:3px; }
+  .gauge.conv .v{ color:var(--amber); }
+  .gauge.quant .v{ color:var(--cyan); }
+  .status{ font-family:var(--mono); font-size:12px; letter-spacing:.1em; margin-top:5px; }
+  .status.ok{ color:var(--cyan); }
+  .status.warn{ color:var(--amber); }
+  .status.bad{ color:var(--red); }
+
+  /* ---------- controls ---------- */
+  .controls{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:12px;
+    padding:16px clamp(12px,2.5vw,22px); display:grid; gap:18px;
+    grid-template-columns:auto 1fr 1fr auto; align-items:center;
+  }
+  button{
+    font-family:var(--sans); cursor:pointer; border-radius:9px; border:1px solid transparent;
+    font-size:14px; font-weight:600; padding:13px 20px; color:var(--bg);
+    transition:transform .06s, filter .15s, background .15s;
+  }
+  button:active{ transform:translateY(1px); }
+  .btn-shake{ background:var(--cyan); box-shadow:0 0 26px -8px var(--cyan); min-width:120px; }
+  .btn-shake.running{ background:var(--amber); box-shadow:0 0 26px -8px var(--amber); }
+  .btn-reset{ background:transparent; color:var(--muted); border-color:var(--panel-line); }
+  .btn-reset:hover{ color:var(--ink); }
+  button:focus-visible, input:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+  .field label{ display:block; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .field .row{ display:flex; align-items:center; gap:10px; }
+  .field .val{ font-family:var(--mono); font-size:14px; color:var(--ink); min-width:62px; text-align:right; }
+  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:3px;
+    background:linear-gradient(90deg,var(--cyan-soft),var(--panel-line)); }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--cyan); border:3px solid #08111a; box-shadow:0 0 10px -2px var(--cyan); cursor:pointer; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--cyan); border:3px solid #08111a; cursor:pointer; }
+  .freq-hint{ font-size:11px; color:var(--muted); margin-top:6px; min-height:14px; }
+  .freq-hint b{ color:var(--red); }
+
+  .fail-toggle{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink); user-select:none; cursor:pointer; }
+  .fail-toggle input{ width:17px; height:17px; accent-color:var(--red); cursor:pointer; }
+
+  .note{ color:var(--muted); font-size:12px; margin-top:12px; line-height:1.5; }
+
+  @media (max-width:760px){
+    .readouts{ grid-template-columns:repeat(2,1fr); }
+    .controls{ grid-template-columns:1fr 1fr; }
+    .controls .field{ grid-column:1 / -1; }
+    .btn-shake{ grid-column:1; } .btn-reset{ grid-column:2; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="logo">QuantLev</span>
+    <h1>Seismic Isolation Demonstrator <span>· levitated vs. fixed-base</span></h1>
+    <p class="sub">Start the shaking, then sweep the frequency toward 1.0 Hz to drive the conventional structure into resonance.</p>
+  </header>
+
+  <div class="stage">
+    <canvas id="c"></canvas>
+    <div class="stage-flash" id="flash"></div>
+  </div>
+
+  <div class="readouts">
+    <div class="gauge">
+      <div class="k">Drive frequency</div>
+      <div class="v"><span id="rFreq">0.80</span><span class="u">Hz</span></div>
+      <div class="status" id="rResonance">&nbsp;</div>
+    </div>
+    <div class="gauge conv">
+      <div class="k">Conventional · top sway</div>
+      <div class="v"><span id="rConv">0</span><span class="u">cm</span></div>
+      <div class="status warn" id="rConvStat">STABLE</div>
+    </div>
+    <div class="gauge quant">
+      <div class="k">QuantLev · top sway</div>
+      <div class="v"><span id="rQuant">0</span><span class="u">cm</span></div>
+      <div class="status ok" id="rQuantStat">LEVITATED</div>
+    </div>
+    <div class="gauge">
+      <div class="k">Motion blocked</div>
+      <div class="v"><span id="rEff">—</span><span class="u">%</span></div>
+      <div class="status ok" id="rEffStat">vs. conventional</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-shake" id="shake" aria-pressed="false">Start shaking</button>
+
+    <div class="field">
+      <label for="mag">Ground motion magnitude</label>
+      <div class="row">
+        <input type="range" id="mag" min="0" max="100" value="55" />
+        <span class="val" id="magVal">0.40 g</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="freq">Shake frequency</label>
+      <div class="row">
+        <input type="range" id="freq" min="20" max="300" value="80" />
+        <span class="val" id="freqVal">0.80 Hz</span>
+      </div>
+      <div class="freq-hint" id="freqHint">&nbsp;</div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; align-items:flex-start;">
+      <label class="fail-toggle"><input type="checkbox" id="fail" /> Simulate cooling failure</label>
+      <button class="btn-reset" id="reset">Reset</button>
+    </div>
+  </div>
+
+  <p class="note">
+    Displacement values are illustrative, scaled to read like a console rather than exact field measurements.
+    The conventional building uses a single-degree-of-freedom model with a 1.0 Hz natural frequency and light damping,
+    so it amplifies sharply at resonance. QuantLev is modeled as a near-frictionless isolation layer, so the ground
+    slides beneath it while the structure stays close to fixed in space. Cooling failure removes the levitation gap
+    and the building behaves like the conventional one.
+  </p>
+</div>
+
+<script>
+"use strict";
+(function(){
+  // ---------------------------------------------------------------
+  // Tunables — safe to tweak in VS Code to taste
+  // ---------------------------------------------------------------
+  const CONV_FN   = 1.0;   // conventional natural frequency (Hz) -> resonance target
+  const CONV_ZETA = 0.035; // conventional damping (lower = more violent resonance)
+  const ISO_FN    = 0.05;  // QuantLev isolation frequency (Hz) -> ultra-soft = near-perfect isolation
+  const ISO_ZETA  = 0.05;  // QuantLev damping (low -> almost no ground motion transmitted)
+  const ENV_TAU   = 0.75;  // ground-motion ramp time constant (s) -> kills the startup kick
+  const PX_PER_CM = 3.2;   // display scale for readouts
+  const U_FAIL_FRAC = 0.42;// conventional fails when drift exceeds this fraction of its height
+  const FLOORS = 8;
+
+  const reduceMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const cv = document.getElementById("c");
+  const ctx = cv.getContext("2d");
+  const flash = document.getElementById("flash");
+
+  // ---- state ----
+  let W=0, H=0, dpr=1;
+  let running=false, t=0, lastTs=0;
+  let magG=0.40, freq=0.80;        // magnitude in g, frequency in Hz
+  let failed=false;                // cooling failure engaged
+  let env=0;                       // ground-motion ramp envelope (0..1), smooths start/stop
+
+  // per-building dynamic state (relative-to-ground displacement u, velocity v, in px)
+  const conv = { u:0, v:0, peak:0, broken:false };
+  const quant= { u:0, v:0, peak:0 };
+  let xg=0;                        // current ground displacement (px)
+
+  // ---- DOM refs ----
+  const els = {
+    freq:document.getElementById("rFreq"),
+    conv:document.getElementById("rConv"),
+    quant:document.getElementById("rQuant"),
+    eff:document.getElementById("rEff"),
+    res:document.getElementById("rResonance"),
+    convStat:document.getElementById("rConvStat"),
+    quantStat:document.getElementById("rQuantStat"),
+    effStat:document.getElementById("rEffStat"),
+    magVal:document.getElementById("magVal"),
+    freqVal:document.getElementById("freqVal"),
+    freqHint:document.getElementById("freqHint"),
+  };
+
+  // ---------------------------------------------------------------
+  // sizing (high-DPI aware)
+  // ---------------------------------------------------------------
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    const cssW = cv.clientWidth || cv.parentElement.clientWidth;
+    const cssH = Math.max(360, Math.min(520, cssW*0.42));
+    cv.style.height = cssH+"px";
+    cv.width  = Math.round(cssW*dpr);
+    cv.height = Math.round(cssH*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    W = cssW; H = cssH;
+  }
+  window.addEventListener("resize", resize);
+
+  // ---------------------------------------------------------------
+  // physics — integrate SDOF oscillators driven by ground accel
+  // ---------------------------------------------------------------
+  function magToPx(){ return magG * 95; }   // ground displacement amplitude in px (g -> px)
+
+  function step(dt){
+    const w = 2*Math.PI*freq;
+    const Apx = magToPx();
+    // ground motion with a smooth ramp envelope: because env starts at 0 with
+    // zero slope, the ground velocity eases in from rest -> no sudden "kick"
+    // that would set the soft QuantLev isolator swinging at start.
+    env += (( running ? 1 : 0 ) - env) * Math.min(1, dt/ENV_TAU);
+    if(env<0.0005 && !running) env=0;
+    const s = Math.sin(w*t);
+    xg = Apx*env*s;
+    const ag = -Apx*env*w*w*s;  // ground acceleration (px/s^2)
+
+    // conventional building (fixed base): always coupled, resonant at CONV_FN
+    integrate(conv, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA);
+
+    // QuantLev: isolated unless cooling has failed
+    if(failed){
+      integrate(quant, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA*1.4);
+    }else{
+      integrate(quant, dt, ag, 2*Math.PI*ISO_FN, ISO_ZETA);
+    }
+  }
+
+  function integrate(b, dt, ag, wn, zeta){
+    // substep for stability near resonance
+    const N=4, h=dt/N;
+    for(let i=0;i<N;i++){
+      const acc = -2*zeta*wn*b.v - wn*wn*b.u - ag;
+      b.v += acc*h;
+      b.u += b.v*h;
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // drawing
+  // ---------------------------------------------------------------
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const groundY = H*0.80;
+
+    // fixed world-frame reference grid (so a still building reads as "still")
+    ctx.lineWidth=1;
+    ctx.strokeStyle="rgba(255,255,255,0.035)";
+    for(let x=(W/2)%60; x<W; x+=60){
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,groundY); ctx.stroke();
+    }
+
+    // ground band (translates with xg so the shaking is visible)
+    drawGround(groundY);
+
+    const xL = W*0.27, xR = W*0.73;
+    const bw = Math.min(120, W*0.16);
+    const bh = groundY - H*0.12;
+
+    // section labels
+    label(xL, H*0.085, "CONVENTIONAL", "FIXED BASE", "var(--amber)");
+    label(xR, H*0.085, "QUANTLEV", failed? "COOLING FAILED" : "LEVITATED",
+          failed? "var(--red)" : "var(--cyan)");
+
+    // ---- conventional: base rides ground (xg), top drifts by u ----
+    const failPx = bh*U_FAIL_FRAC;
+    if(Math.abs(conv.u)>failPx) conv.broken=true;
+    const cu = conv.broken ? clamp(conv.u,-failPx*1.15,failPx*1.15) : conv.u;
+    drawBuilding(xL, groundY, bw, bh, xg, cu, getCss("--amber"), conv.broken);
+
+    // ---- QuantLev: magnet array on ground + floating building ----
+    const gap = failed ? 2 : Math.max(10, bh*0.05);
+    drawMagnet(xR, groundY, bw, xg, failed);
+    // isolated building barely moves in absolute space: abs = xg + u  (u ~ -xg)
+    const qAbs = failed ? xg : (xg + quant.u);
+    drawBuilding(xR, groundY-gap, bw, bh, qAbs, 0, getCss("--cyan"), false, !failed);
+    if(!failed) drawGap(xR, groundY, bw, gap, qAbs);
+  }
+
+  function drawGround(groundY){
+    ctx.fillStyle="#0a0f18";
+    ctx.fillRect(0,groundY,W,H-groundY);
+    ctx.strokeStyle="rgba(120,150,190,0.25)";
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,groundY); ctx.lineTo(W,groundY); ctx.stroke();
+    // moving hatch
+    ctx.strokeStyle="rgba(120,150,190,0.16)";
+    ctx.lineWidth=1;
+    const off = xg % 26;
+    for(let x=-26+off; x<W+26; x+=26){
+      ctx.beginPath(); ctx.moveTo(x,groundY+4); ctx.lineTo(x-14,H); ctx.stroke();
+    }
+  }
+
+  // building drawn as stacked floors; baseOff = horizontal ground offset,
+  // drift = extra top lean distributed linearly up the height
+  function drawBuilding(cx, baseY, w, h, baseOff, drift, color, broken, glowBase){
+    const n=FLOORS, fh=h/n, half=w/2;
+    ctx.save();
+    for(let i=0;i<n;i++){
+      const frac=i/(n-1);
+      const off = baseOff + drift*frac;
+      const y = baseY - (i+1)*fh;
+      const x = cx + off - half;
+      // floor slab
+      ctx.fillStyle = shade(color, 0.16 + 0.04*(i%2));
+      roundRect(x, y+2, w, fh-3, 3); ctx.fill();
+      // outline
+      ctx.strokeStyle = shade(color, 0.55);
+      ctx.lineWidth=1.2; roundRect(x, y+2, w, fh-3, 3); ctx.stroke();
+      // windows
+      ctx.fillStyle = shade(color, 0.7);
+      const cols=3;
+      for(let c=0;c<cols;c++){
+        const wx = x + (c+0.5)*(w/cols) - 3;
+        ctx.fillRect(wx, y+fh*0.35, 6, fh*0.32);
+      }
+    }
+    // roof cap
+    const topOff = baseOff + drift;
+    ctx.fillStyle = color;
+    roundRect(cx+topOff-half-3, baseY-h-4, w+6, 6, 3); ctx.fill();
+
+    if(glowBase){
+      ctx.fillStyle = withAlpha(color,0.9);
+      ctx.fillRect(cx+baseOff-half, baseY-2, w, 4);
+    }
+    if(broken) drawCracks(cx+baseOff, baseY, w, h, drift);
+    ctx.restore();
+  }
+
+  function drawCracks(cx, baseY, w, h, drift){
+    ctx.strokeStyle=getCss("--red"); ctx.lineWidth=2;
+    ctx.beginPath();
+    let x=cx-w*0.2, y=baseY;
+    ctx.moveTo(x,y);
+    for(let k=0;k<5;k++){ x+=(k%2?18:-12); y-=h*0.16; ctx.lineTo(x,y); }
+    ctx.stroke();
+    ctx.font="700 13px "+getCss("--mono");
+    ctx.fillStyle=getCss("--red"); ctx.textAlign="center";
+    ctx.fillText("STRUCTURAL FAILURE", cx+drift*0.5, baseY-h-18);
+  }
+
+  function drawMagnet(cx, groundY, w, off, failed){
+    const mw=w*1.18, mh=18, x=cx+off-mw/2, y=groundY-mh;
+    ctx.fillStyle = failed ? "#3a2630" : "#10303a";
+    roundRect(x,y,mw,mh,4); ctx.fill();
+    ctx.strokeStyle = failed ? withAlpha(getCss("--red"),.6) : withAlpha(getCss("--cyan"),.55);
+    ctx.lineWidth=1.5; roundRect(x,y,mw,mh,4); ctx.stroke();
+    // HTS module ticks
+    ctx.fillStyle = failed ? withAlpha(getCss("--red"),.5):withAlpha(getCss("--cyan"),.5);
+    for(let i=0;i<6;i++) ctx.fillRect(x+8+i*(mw-16)/5, y+5, 7, mh-10);
+  }
+
+  function drawGap(cx, groundY, w, gap, bldgOff){
+    // glowing levitation gap between magnet top (rides ground=xg) and building base
+    const magTopY=groundY-18;
+    const baseY=groundY-gap;
+    const pulse = reduceMotion?0.5:(0.5+0.5*Math.sin(t*4));
+    const g=ctx.createLinearGradient(0,baseY,0,magTopY);
+    g.addColorStop(0, withAlpha(getCss("--cyan"),0.0));
+    g.addColorStop(1, withAlpha(getCss("--cyan"),0.35+0.25*pulse));
+    ctx.fillStyle=g;
+    ctx.fillRect(cx+Math.min(xg,bldgOff)-w/2-6, magTopY-2, w+12+Math.abs(xg-bldgOff), gap+4);
+    // field lines hint
+    ctx.strokeStyle=withAlpha(getCss("--cyan"),0.4+0.3*pulse);
+    ctx.lineWidth=1;
+    for(let i=0;i<3;i++){
+      const fx=cx+bldgOff-w/2+ (i+1)*(w/4);
+      ctx.beginPath(); ctx.moveTo(fx,baseY); ctx.lineTo(cx+xg-w/2+(i+1)*(w/4),magTopY); ctx.stroke();
+    }
+  }
+
+  function label(cx, y, line1, line2, color){
+    ctx.textAlign="center";
+    ctx.font="700 13px "+getCss("--mono");
+    ctx.fillStyle=getCss("--ink");
+    ctx.fillText(line1, cx, y);
+    ctx.font="600 11px "+getCss("--mono");
+    ctx.fillStyle=color.startsWith("var")?getCss(color.slice(4,-1)):color;
+    ctx.fillText(line2, cx, y+15);
+  }
+
+  // ---------------------------------------------------------------
+  // helpers
+  // ---------------------------------------------------------------
+  function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function getCss(n){ return n.startsWith("--")? getComputedStyle(document.documentElement).getPropertyValue(n).trim() : n; }
+  function withAlpha(hex,a){ const c=hexToRgb(hex); return `rgba(${c.r},${c.g},${c.b},${a})`; }
+  function shade(hex,f){ const c=hexToRgb(hex); return `rgb(${Math.round(c.r*f)},${Math.round(c.g*f)},${Math.round(c.b*f)})`; }
+  function hexToRgb(h){ h=h.replace("#",""); if(h.length===3)h=h.split("").map(x=>x+x).join("");
+    const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+
+  // ---------------------------------------------------------------
+  // readouts
+  // ---------------------------------------------------------------
+  function updateReadouts(){
+    els.freq.textContent = freq.toFixed(2);
+    const convCm = Math.abs(conv.broken?conv.u:conv.u)/PX_PER_CM;
+    const quantAbs = failed? Math.abs(xg) : Math.abs(xg+quant.u);
+    const quantCm = quantAbs/PX_PER_CM;
+    conv.peak=Math.max(conv.peak,convCm); quant.peak=Math.max(quant.peak,quantCm);
+
+    els.conv.textContent = convCm.toFixed(convCm<10?1:0);
+    els.quant.textContent = quantCm.toFixed(quantCm<10?1:0);
+
+    // resonance proximity
+    const near = Math.abs(freq-CONV_FN);
+    if(running && near<0.12){ els.res.textContent="◉ RESONANCE"; els.res.className="status bad"; }
+    else if(running && near<0.3){ els.res.textContent="approaching resonance"; els.res.className="status warn"; }
+    else { els.res.innerHTML="&nbsp;"; els.res.className="status"; }
+
+    // conventional status
+    if(conv.broken){ els.convStat.textContent="FAILURE"; els.convStat.className="status bad"; }
+    else if(convCm>14){ els.convStat.textContent="DANGER"; els.convStat.className="status bad"; }
+    else if(convCm>5){ els.convStat.textContent="SWAYING"; els.convStat.className="status warn"; }
+    else { els.convStat.textContent="STABLE"; els.convStat.className="status warn"; }
+
+    // quantlev status
+    if(failed){ els.quantStat.textContent="FAILED"; els.quantStat.className="status bad"; }
+    else { els.quantStat.textContent="LEVITATED"; els.quantStat.className="status ok"; }
+
+    // efficiency
+    if(running && convCm>1.5){
+      const eff=clamp((1-quantCm/convCm)*100,0,99.9);
+      els.eff.textContent=eff.toFixed(0);
+      els.effStat.textContent= failed?"isolation lost":"vs. conventional";
+      els.effStat.className= failed?"status bad":"status ok";
+    } else { els.eff.textContent="—"; }
+
+    flash.classList.toggle("on", conv.broken && running);
+  }
+
+  // ---------------------------------------------------------------
+  // loop
+  // ---------------------------------------------------------------
+  function frame(ts){
+    if(!lastTs) lastTs=ts;
+    let dt=(ts-lastTs)/1000; lastTs=ts;
+    dt=Math.min(dt,0.05);
+    if(running) t+=dt;
+    step(dt);
+    draw();
+    updateReadouts();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------------------------------------------------------------
+  // controls
+  // ---------------------------------------------------------------
+  const shakeBtn=document.getElementById("shake");
+  shakeBtn.addEventListener("click", ()=>{
+    running=!running;
+    shakeBtn.textContent = running? "Stop" : "Start shaking";
+    shakeBtn.classList.toggle("running", running);
+    shakeBtn.setAttribute("aria-pressed", running);
+    if(!running){ /* let motion decay naturally */ }
+  });
+
+  document.getElementById("reset").addEventListener("click", ()=>{
+    running=false; t=0; xg=0; env=0; failed=false;
+    Object.assign(conv,{u:0,v:0,peak:0,broken:false});
+    Object.assign(quant,{u:0,v:0,peak:0});
+    document.getElementById("fail").checked=false;
+    shakeBtn.textContent="Start shaking"; shakeBtn.classList.remove("running");
+    shakeBtn.setAttribute("aria-pressed","false");
+  });
+
+  const magEl=document.getElementById("mag");
+  magEl.addEventListener("input", ()=>{
+    magG = 0.05 + (magEl.value/100)*0.65;     // 0.05g .. 0.70g
+    els.magVal.textContent = magG.toFixed(2)+" g";
+  });
+
+  const freqEl=document.getElementById("freq");
+  freqEl.addEventListener("input", ()=>{
+    freq = freqEl.value/100;                   // 0.20 .. 3.00 Hz
+    els.freqVal.textContent = freq.toFixed(2)+" Hz";
+    const near=Math.abs(freq-CONV_FN);
+    if(near<0.1) els.freqHint.innerHTML="<b>matching the building's 1.0 Hz natural frequency</b>";
+    else if(near<0.3) els.freqHint.textContent="near the conventional resonance";
+    else els.freqHint.innerHTML="&nbsp;";
+  });
+
+  document.getElementById("fail").addEventListener("change", e=>{
+    failed = e.target.checked;
+    if(failed){ quant.u=conv.u*0.3; quant.v=conv.v*0.3; }  // hand off some motion
+  });
+
+  // init
+  resize(); 
+  els.magVal.textContent=magG.toFixed(2)+" g";
+  els.freqVal.textContent=freq.toFixed(2)+" Hz";
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
