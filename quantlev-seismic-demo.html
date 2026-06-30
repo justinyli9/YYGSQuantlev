@@ -4,227 +4,201 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>QuantLev — Seismic Isolation Demonstrator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Saira:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Roboto+Slab:wght@500;700;800&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ---------- QuantLev "cryo seismic station" design tokens ----------
-     A cryogenic seismic-isolation test bay console. Cold graphite room,
-     superconductor cyan for the levitated system, warm amber for the
-     conventional structure, red for failure. Display type is condensed
-     station signage (Saira Condensed); every datum is IBM Plex Mono so the
-     panel reads like real monitoring instrumentation.  */
+  /* ---------- QuantLev "seismograph chart paper" design tokens ----------
+     A light, ruled plotter-trace world. Warm chart paper, ink-navy line-art
+     structures, a brick-red pen for the vulnerable conventional building and a
+     teal pen for the levitated one. Editorial slab display, humanist-sans body,
+     monospace for every measured value — like reading a research figure.        */
   :root{
-    --bg:#070a10;
-    --bg2:#0b0f17;
-    --panel:#0e131d;
-    --panel-2:#111826;
-    --panel-line:#1c2533;
-    --hair:rgba(124,162,200,0.10);
-    --ink:#e7eef8;
-    --muted:#6c7c95;
-    --cyan:#34e4d0;     /* QuantLev / superconductor glow */
-    --cyan-soft:#198f93;
-    --amber:#f4a23a;    /* conventional structure */
-    --amber-soft:#7a5320;
-    --red:#ff5a5d;      /* failure / resonance */
-    --grid:rgba(124,162,200,0.045);
-    --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
-    --disp:"Saira Condensed", "Saira", system-ui, sans-serif;
-    --sans:"Saira", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --paper:#f4efe4;     /* warm chart paper */
+    --paper2:#efe8da;    /* raised cards */
+    --paper3:#e7dfcd;    /* insets / soil band */
+    --line:#d6cbb4;      /* hairline borders */
+    --grid:#e3dac7;      /* minor ruling */
+    --grid2:#d2c6ad;     /* major ruling */
+    --ink:#1d2735;       /* primary text / structures */
+    --ink-soft:#566072;  /* secondary text */
+    --muted:#8c8472;     /* captions, warm grey */
+    --conv:#c2362f;      /* conventional structure / peak / danger */
+    --quant:#0a8f99;     /* QuantLev / levitation */
+    --warn:#b07d1c;      /* swaying */
+    --fail:#7c1d17;      /* structural failure */
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --display: "Roboto Slab", Georgia, "Times New Roman", serif;
   }
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; }
   body{
     background:
-      radial-gradient(1100px 560px at 50% -12%, #0f1726 0%, rgba(15,23,38,0) 60%) fixed,
-      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 34px,
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/34px 100%,
-      var(--bg);
+      radial-gradient(1100px 520px at 50% -8%, #fbf8f0 0%, var(--paper) 58%) fixed,
+      var(--paper);
     color:var(--ink);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
-    padding:20px clamp(12px,3vw,32px) 34px;
+    padding:22px clamp(12px,3vw,32px) 34px;
   }
-  .wrap{ max-width:1180px; margin:0 auto; }
+  .wrap{ max-width:1120px; margin:0 auto; }
 
-  /* ---------- station header ---------- */
-  header{
-    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
-    padding-bottom:14px; margin-bottom:16px;
-    border-bottom:1px solid var(--panel-line);
+  /* ---------- masthead ---------- */
+  header{ margin-bottom:18px; }
+  .kicker{ display:flex; align-items:center; gap:11px; margin-bottom:11px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+  .logo{
+    font-family:var(--mono); font-weight:600; letter-spacing:.18em;
+    font-size:11px; color:var(--ink);
+    border:1px solid var(--ink); border-radius:3px;
+    padding:4px 8px 3px; text-transform:uppercase;
   }
-  .badge{
-    font-family:var(--mono); font-weight:600; letter-spacing:.16em;
-    font-size:13px; color:var(--cyan); align-self:stretch; display:flex; align-items:center;
-    border:1px solid var(--cyan-soft); border-radius:5px;
-    padding:0 11px; text-transform:uppercase;
-    box-shadow:0 0 22px -8px var(--cyan), inset 0 0 14px -10px var(--cyan);
-  }
-  .ident{ display:flex; flex-direction:column; gap:2px; }
-  .ident .code{ font-family:var(--mono); font-size:11px; letter-spacing:.13em; color:var(--ink); }
-  .ident .coord{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--muted); }
-  .title{
-    font-family:var(--disp); font-weight:700; text-transform:uppercase;
-    font-size:clamp(22px,3.3vw,38px); line-height:.95; letter-spacing:.01em;
-    margin:0 auto 0 4px; color:var(--ink);
-  }
-  .title em{ font-style:normal; color:var(--cyan); }
-  .live{
-    font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--cyan); display:inline-flex; align-items:center; gap:8px;
-    border:1px solid var(--panel-line); border-radius:999px; padding:6px 12px;
-    background:var(--panel);
-  }
-  .live .dot{ width:8px; height:8px; border-radius:50%; background:var(--cyan);
-    box-shadow:0 0 0 0 var(--cyan); animation:ping 1.8s ease-out infinite; }
-  @keyframes ping{
-    0%{ box-shadow:0 0 0 0 rgba(52,228,208,.55); }
-    70%{ box-shadow:0 0 0 7px rgba(52,228,208,0); }
-    100%{ box-shadow:0 0 0 0 rgba(52,228,208,0); }
-  }
-  .sub{ width:100%; color:var(--muted); font-size:13.5px; margin:10px 0 0; letter-spacing:.01em; }
-  .sub b{ color:var(--amber); font-weight:500; }
+  h1{ font-family:var(--display); font-weight:800; margin:0;
+    font-size:clamp(27px,4.4vw,46px); line-height:1.02; letter-spacing:-.012em; color:var(--ink); }
+  .sub{ max-width:62ch; color:var(--ink-soft); font-size:15px; line-height:1.5; margin:11px 0 0; }
+  .sub b{ color:var(--conv); font-weight:600; }
+
+  /* hairline that runs across, like a figure rule */
+  .rule{ height:1px; background:var(--line); margin:18px 0; }
 
   /* ---------- stage ---------- */
   .stage{
-    position:relative; border:1px solid var(--panel-line); border-radius:12px;
-    background:linear-gradient(180deg,#0a1120,#06090f);
-    overflow:hidden;
-    box-shadow:0 18px 50px -28px #000, inset 0 1px 0 rgba(255,255,255,.03);
+    position:relative; border:1px solid var(--line); border-radius:5px;
+    background:linear-gradient(180deg,#faf6ee,#f1ebdd);
+    overflow:hidden; box-shadow:0 1px 0 #fff inset, 0 14px 34px -28px #3a3322;
   }
-  /* registration corner ticks — instrument framing */
-  .stage::before, .stage::after{
-    content:""; position:absolute; width:16px; height:16px; pointer-events:none; z-index:2;
-    border:1.5px solid var(--cyan-soft); opacity:.6;
-  }
-  .stage::before{ left:9px; top:9px; border-right:0; border-bottom:0; }
-  .stage::after{ right:9px; bottom:9px; border-left:0; border-top:0; }
   canvas{ display:block; width:100%; height:auto; }
   .stage-flash{
     position:absolute; inset:0; pointer-events:none;
-    box-shadow:inset 0 0 0 0 var(--red); transition:box-shadow .15s; border-radius:12px;
+    box-shadow:inset 0 0 0 0 var(--fail); transition:box-shadow .15s; border-radius:5px;
   }
-  .stage-flash.on{ box-shadow:inset 0 0 80px -10px var(--red); }
+  .stage-flash.on{ box-shadow:inset 0 0 70px -8px rgba(124,29,23,.55); }
 
-  /* ---------- signature: live seismograph trace ---------- */
-  .recorder{
-    margin-top:10px; border:1px solid var(--panel-line); border-radius:12px;
-    background:linear-gradient(180deg,#0a0f18,#080b11); overflow:hidden;
+  /* ---------- seismograph figure (the signature) ---------- */
+  .trace{
+    margin:14px 0 0; border:1px solid var(--line); border-radius:5px;
+    background:#fbf7ef; overflow:hidden; box-shadow:0 1px 0 #fff inset;
   }
-  .recorder-head{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:9px 14px; border-bottom:1px solid var(--panel-line);
-    font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+  .trace-head{
+    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+    padding:11px 15px 10px; border-bottom:1px solid var(--line);
   }
-  .rec-title{ color:var(--muted); }
-  .rec-legend{ display:flex; align-items:center; gap:14px; color:var(--ink); }
-  .rec-legend i{ display:inline-block; width:18px; height:2px; margin-right:7px; vertical-align:middle; border-radius:2px; }
-  .rec-legend i.amber{ background:var(--amber); box-shadow:0 0 8px -1px var(--amber); }
-  .rec-legend i.cyan{ background:var(--cyan); box-shadow:0 0 8px -1px var(--cyan); }
-  #trace{ display:block; width:100%; height:auto; }
+  .trace-title{ font-family:var(--display); font-weight:500; font-size:15px; color:var(--ink); letter-spacing:.005em; }
+  .trace-title b{ font-weight:700; letter-spacing:.04em; }
+  .trace-legend{ display:flex; align-items:center; gap:18px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
+  .pen{ display:inline-flex; align-items:center; }
+  .pen::before{ content:""; width:18px; height:0; margin-right:8px; }
+  .pen.conv::before{ border-top:2.5px solid var(--conv); }
+  .pen.quant::before{ border-top:2.5px solid var(--quant); }
+  #wave{ display:block; width:100%; height:auto; }
+  .trace-foot{ margin:0; padding:8px 15px 9px; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--muted); }
 
   /* ---------- readouts ---------- */
   .readouts{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin:14px 0;
   }
   .gauge{
-    position:relative; background:var(--panel); border:1px solid var(--panel-line);
-    border-radius:10px; padding:12px 14px 12px 16px; overflow:hidden;
+    background:var(--paper2); border:1px solid var(--line); border-radius:5px;
+    padding:12px 14px;
   }
-  .gauge::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--panel-line); }
-  .gauge.conv::before{ background:var(--amber); }
-  .gauge.quant::before{ background:var(--cyan); }
-  .gauge .k{ font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
-  .gauge .v{ font-family:var(--mono); font-weight:500; font-size:26px; margin-top:4px; font-variant-numeric:tabular-nums; line-height:1; }
-  .gauge .u{ font-size:11px; color:var(--muted); margin-left:4px; }
-  .gauge.conv .v{ color:var(--amber); }
-  .gauge.quant .v{ color:var(--cyan); }
-  .status{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; margin-top:7px; text-transform:uppercase; }
-  .status.ok{ color:var(--cyan); }
-  .status.warn{ color:var(--amber); }
-  .status.bad{ color:var(--red); }
+  .gauge .k{ font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .gauge .v{ font-family:var(--mono); font-weight:500; font-size:25px; margin-top:5px; font-variant-numeric:tabular-nums; color:var(--ink); }
+  .gauge .u{ font-size:11px; color:var(--muted); margin-left:3px; }
+  .gauge.conv .v{ color:var(--conv); }
+  .gauge.quant .v{ color:var(--quant); }
+  .status{ font-family:var(--mono); font-size:11px; letter-spacing:.09em; margin-top:6px; text-transform:uppercase; }
+  .status.ok{ color:var(--quant); }
+  .status.warn{ color:var(--warn); }
+  .status.bad{ color:var(--conv); }
 
   /* ---------- controls ---------- */
   .controls{
-    background:var(--panel); border:1px solid var(--panel-line); border-radius:12px;
-    padding:18px clamp(12px,2.5vw,22px); display:grid; gap:18px;
+    background:var(--paper2); border:1px solid var(--line); border-radius:5px;
+    padding:17px clamp(12px,2.5vw,24px); display:grid; gap:20px;
     grid-template-columns:auto 1fr 1fr auto; align-items:center;
   }
   button{
-    font-family:var(--disp); cursor:pointer; border-radius:9px; border:1px solid transparent;
-    font-size:15px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
-    padding:13px 22px; color:#04121a;
-    transition:transform .06s, filter .15s, background .15s;
+    font-family:var(--sans); cursor:pointer; border-radius:4px; border:1px solid transparent;
+    font-size:14px; font-weight:600; padding:13px 22px; color:var(--paper);
+    transition:transform .06s, filter .15s, background .2s;
   }
   button:active{ transform:translateY(1px); }
-  .btn-shake{ background:var(--cyan); box-shadow:0 0 26px -8px var(--cyan); min-width:130px; }
-  .btn-shake:hover{ filter:brightness(1.06); }
-  .btn-shake.running{ background:var(--amber); box-shadow:0 0 26px -8px var(--amber); }
-  .btn-reset{ background:transparent; color:var(--muted); border-color:var(--panel-line); }
-  .btn-reset:hover{ color:var(--ink); border-color:var(--cyan-soft); }
-  button:focus-visible, input:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .btn-shake{ background:var(--ink); min-width:128px; letter-spacing:.01em; }
+  .btn-shake:hover{ filter:brightness(1.12); }
+  .btn-shake.running{ background:var(--conv); }
+  .btn-reset{ background:transparent; color:var(--ink-soft); border-color:var(--line); }
+  .btn-reset:hover{ color:var(--ink); border-color:var(--ink-soft); }
+  button:focus-visible, input:focus-visible{ outline:2px solid var(--quant); outline-offset:2px; }
 
-  .field label{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .field label{ display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:9px; }
   .field .row{ display:flex; align-items:center; gap:12px; }
-  .field .val{ font-family:var(--mono); font-size:14px; color:var(--ink); min-width:66px; text-align:right; font-variant-numeric:tabular-nums; }
-  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:3px;
-    background:linear-gradient(90deg,var(--cyan-soft),var(--panel-line)); }
-  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
-    background:var(--cyan); border:3px solid #08111a; box-shadow:0 0 10px -2px var(--cyan); cursor:pointer; }
-  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--cyan); border:3px solid #08111a; cursor:pointer; }
-  .freq-hint{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--muted); margin-top:7px; min-height:14px; }
-  .freq-hint b{ color:var(--red); }
+  .field .val{ font-family:var(--mono); font-size:14px; color:var(--ink); min-width:64px; text-align:right; font-variant-numeric:tabular-nums; }
+  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:3px; border-radius:3px;
+    background:linear-gradient(90deg,var(--quant) 0%, var(--line) 100%); }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:17px; height:17px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--paper); box-shadow:0 1px 4px -1px rgba(0,0,0,.4); cursor:pointer; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--ink); border:3px solid var(--paper); cursor:pointer; }
+  .freq-hint{ font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-top:8px; min-height:14px; letter-spacing:.03em; }
+  .freq-hint b{ color:var(--conv); font-weight:600; }
 
-  .fail-toggle{ display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); user-select:none; cursor:pointer; }
-  .fail-toggle input{ width:17px; height:17px; accent-color:var(--red); cursor:pointer; }
+  .fail-toggle{ display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--ink); user-select:none; cursor:pointer; }
+  .fail-toggle input{ width:16px; height:16px; accent-color:var(--conv); cursor:pointer; }
 
-  .note{ color:var(--muted); font-size:12.5px; margin-top:14px; line-height:1.6; }
-  .note b{ color:var(--ink); font-weight:500; }
+  .note{ color:var(--muted); font-size:12.5px; margin-top:14px; line-height:1.6; max-width:88ch; }
+  .note b{ color:var(--ink-soft); font-weight:600; }
 
-  @media (prefers-reduced-motion: reduce){
-    .live .dot{ animation:none; }
+  /* ---------- a little ambiance: staggered load-in ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    .rise{ animation:rise .65s cubic-bezier(.2,.7,.2,1) both; }
+    .rise.d1{ animation-delay:.05s; } .rise.d2{ animation-delay:.11s; }
+    .rise.d3{ animation-delay:.17s; } .rise.d4{ animation-delay:.23s; }
+    @keyframes rise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
   }
 
   @media (max-width:760px){
-    header{ gap:12px; }
-    .title{ font-size:24px; margin:0; width:100%; order:3; }
     .readouts{ grid-template-columns:repeat(2,1fr); }
     .controls{ grid-template-columns:1fr 1fr; }
     .controls .field{ grid-column:1 / -1; }
     .btn-shake{ grid-column:1; } .btn-reset{ grid-column:2; }
-    .rec-title{ display:none; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <span class="badge">QuantLev</span>
-    <div class="ident">
-      <div class="code">STATION QLEV-01 · ISOLATION TEST BAY</div>
-      <div class="coord">37.4274°N 122.1697°W · FLUX-PINNED HTS ARRAY</div>
+  <header class="rise">
+    <div class="kicker">
+      <span class="logo">QuantLev</span>
+      <span>Seismic Isolation Lab · Fig. 01</span>
     </div>
-    <h1 class="title">Seismic Isolation <em>Demonstrator</em></h1>
-    <span class="live"><span class="dot"></span> Monitoring</span>
-    <p class="sub">Start the shaking, then sweep the drive toward <b>1.0 Hz</b> to walk the conventional tower into resonance — and watch the levitated structure hold the line.</p>
+    <h1>The tower that<br>barely moves.</h1>
+    <p class="sub">Start the shaking, then sweep the drive frequency toward <b>1.0&nbsp;Hz</b> to push the
+      conventional structure into resonance — and watch the levitated tower hold still beside it.</p>
   </header>
 
-  <div class="stage">
+  <div class="rule"></div>
+
+  <div class="stage rise d1">
     <canvas id="c"></canvas>
     <div class="stage-flash" id="flash"></div>
   </div>
 
-  <div class="recorder">
-    <div class="recorder-head">
-      <span class="rec-title">Ground-referenced top motion · live trace</span>
-      <span class="rec-legend"><span><i class="amber"></i>Conventional</span><span><i class="cyan"></i>QuantLev</span></span>
-    </div>
-    <canvas id="trace"></canvas>
-  </div>
+  <figure class="trace rise d2" style="margin-block-end:0">
+    <figcaption class="trace-head">
+      <span class="trace-title"><b>Fig. 1</b> — Top-floor displacement</span>
+      <span class="trace-legend">
+        <span class="pen conv">Conventional</span>
+        <span class="pen quant">QuantLev</span>
+      </span>
+    </figcaption>
+    <canvas id="wave"></canvas>
+    <p class="trace-foot">Measured against a fixed world frame · recording head at right, oldest trace scrolls off left</p>
+  </figure>
 
-  <div class="readouts">
+  <div class="readouts rise d3">
     <div class="gauge">
       <div class="k">Drive frequency</div>
       <div class="v"><span id="rFreq">0.80</span><span class="u">Hz</span></div>
@@ -247,7 +221,7 @@
     </div>
   </div>
 
-  <div class="controls">
+  <div class="controls rise d4">
     <button class="btn-shake" id="shake" aria-pressed="false">Start shaking</button>
 
     <div class="field">
@@ -267,20 +241,18 @@
       <div class="freq-hint" id="freqHint">&nbsp;</div>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:12px; align-items:flex-start;">
+    <div style="display:flex; flex-direction:column; gap:13px; align-items:flex-start;">
       <label class="fail-toggle"><input type="checkbox" id="fail" /> Simulate cooling failure</label>
       <button class="btn-reset" id="reset">Reset</button>
     </div>
   </div>
 
   <p class="note">
-    <b>Reading the trace:</b> the strip records each tower's top motion in the world frame. The conventional
-    structure (amber) is a single-degree-of-freedom model tuned to a 1.0 Hz natural frequency with light damping,
-    so it amplifies sharply at resonance. QuantLev (cyan) rides an ultra-soft, flux-pinned isolation layer — the
-    ground slides beneath it while inertia holds the structure nearly fixed, so its trace stays close to the baseline.
-    <b>Simulate cooling failure</b> to remove the levitation gap; the isolation collapses and the building behaves
-    like the conventional one. Displacement values are illustrative, scaled to read like a console rather than exact
-    field measurements.
+    Displacement values are illustrative, scaled to read like a console rather than exact field measurements.
+    The <b>conventional</b> building uses a single-degree-of-freedom model with a 1.0&nbsp;Hz natural frequency and light damping,
+    so it amplifies sharply at resonance. <b>QuantLev</b> is modeled as a near-frictionless isolation layer, so the ground
+    slides beneath it while the structure stays close to fixed in space. Cooling failure removes the levitation gap
+    and the building behaves like the conventional one.
   </p>
 </div>
 
@@ -292,9 +264,9 @@
   // ---------------------------------------------------------------
   const CONV_FN   = 1.0;   // conventional natural frequency (Hz) -> resonance target
   const CONV_ZETA = 0.035; // conventional damping (lower = more violent resonance)
-  const ISO_FN    = 0.10;  // QuantLev isolation frequency (Hz) -> very soft suspension
-  const ISO_ZETA  = 0.75;  // QuantLev SKYHOOK damping (damps absolute motion -> fast settle, no HF penalty)
-  const ENV_TAU   = 0.6;   // ground-motion ramp time constant (s) -> eases the onset
+  const ISO_CORNER= 0.55;  // QuantLev isolated response corner (Hz) — moderate, so there's no slow drift
+  const ISO_ZETA  = 0.70;  // QuantLev damping — well-damped, any twitch settles in well under a second
+  const ISO_COUPLE= 0.12;  // fraction of ground motion that leaks into the levitated structure
   const PX_PER_CM = 3.2;   // display scale for readouts
   const U_FAIL_FRAC = 0.42;// conventional fails when drift exceeds this fraction of its height
   const FLOORS = 8;
@@ -305,24 +277,23 @@
   const cv = document.getElementById("c");
   const ctx = cv.getContext("2d");
   const flash = document.getElementById("flash");
-  const tcv = document.getElementById("trace");
-  const tctx = tcv.getContext("2d");
+
+  const wv = document.getElementById("wave");
+  const wctx = wv.getContext("2d");
 
   // ---- state ----
   let W=0, H=0, dpr=1;
-  let TW=0, TH=0;                   // seismograph trace strip size (css px)
-  const traceC=[], traceQ=[];      // rolling samples: conventional / quantlev top motion (px)
-  const TRACE_STEP=2;              // horizontal px per recorded sample
-  let lastConvAbs=0, lastQuantAbs=0; // most recent top absolute displacement (px)
+  let WW=0, WH=0;                   // seismograph strip size (css px)
+  const histConv=[], histQuant=[]; // scrolling top-floor displacement (world px)
   let running=false, t=0, lastTs=0;
   let magG=0.40, freq=0.80;        // magnitude in g, frequency in Hz
   let failed=false;                // cooling failure engaged
-  let env=0;                       // ground-motion ramp envelope (0..1), smooths start/stop
 
   // per-building dynamic state (relative-to-ground displacement u, velocity v, in px)
   const conv = { u:0, v:0, peak:0, broken:false };
-  const quant= { u:0, v:0, peak:0 };
+  const quant= { u:0, v:0, peak:0, a:0, av:0 };  // a/av: absolute pos & vel for the isolated model
   let xg=0;                        // current ground displacement (px)
+  let convEnv=0, quantEnv=0;       // peak-hold envelopes (cm) for steady readouts
 
   // ---- DOM refs ----
   const els = {
@@ -339,6 +310,13 @@
     freqHint:document.getElementById("freqHint"),
   };
 
+  // cache resolved theme colors (re-read on resize in case fonts/vars settle)
+  const C = {};
+  function readTheme(){
+    ["--paper","--paper3","--line","--grid","--grid2","--ink","--ink-soft",
+     "--muted","--conv","--quant","--fail"].forEach(n=> C[n]=getCss(n));
+  }
+
   // ---------------------------------------------------------------
   // sizing (high-DPI aware)
   // ---------------------------------------------------------------
@@ -351,16 +329,21 @@
     cv.height = Math.round(cssH*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
     W = cssW; H = cssH;
-
-    // seismograph trace strip
-    const tH = Math.round(Math.max(96, Math.min(150, cssW*0.12)));
-    tcv.style.height = tH+"px";
-    tcv.width  = Math.round(cssW*dpr);
-    tcv.height = Math.round(tH*dpr);
-    tctx.setTransform(dpr,0,0,dpr,0,0);
-    TW = cssW; TH = tH;
+    readTheme();
+    resizeWave();
   }
   window.addEventListener("resize", resize);
+
+  function resizeWave(){
+    const cssW = wv.clientWidth || wv.parentElement.clientWidth;
+    const cssH = 190;
+    wv.style.height = cssH+"px";
+    wv.width  = Math.round(cssW*dpr);
+    wv.height = Math.round(cssH*dpr);
+    wctx.setTransform(dpr,0,0,dpr,0,0);
+    WW = cssW; WH = cssH;
+    while(histConv.length>WW){ histConv.shift(); histQuant.shift(); }
+  }
 
   // ---------------------------------------------------------------
   // physics — integrate SDOF oscillators driven by ground accel
@@ -370,136 +353,99 @@
   function step(dt){
     const w = 2*Math.PI*freq;
     const Apx = magToPx();
-    // ground motion with a smooth ramp envelope: because env starts at 0 with
-    // zero slope, the ground velocity eases in from rest -> no sudden "kick"
-    // that would set the soft QuantLev isolator swinging at start.
-    env += (( running ? 1 : 0 ) - env) * Math.min(1, dt/ENV_TAU);
-    if(env<0.0005 && !running) env=0;
-    const s = Math.sin(w*t), c = Math.cos(w*t);
-    xg = Apx*env*s;
-    const ag = -Apx*env*w*w*s;  // ground acceleration (px/s^2)
-    const vg =  Apx*env*w*c;    // ground velocity     (px/s)
+    // ground motion
+    if(running){
+      xg = Apx*Math.sin(w*t);
+    } else {
+      xg *= 0.86; if(Math.abs(xg)<0.05) xg=0;
+    }
+    const ag = running ? -Apx*w*w*Math.sin(w*t) : 0;  // ground acceleration (px/s^2)
 
-    // conventional building (fixed base): damps relative to its own base,
-    // so it amplifies hard at resonance.  (skyVel = 0 -> standard relative damping)
-    integrate(conv, dt, ag, 0, 2*Math.PI*CONV_FN, CONV_ZETA);
+    // conventional building (fixed base): always coupled, resonant at CONV_FN
+    integrate(conv, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA);
 
     // QuantLev: isolated unless cooling has failed
     if(failed){
-      integrate(quant, dt, ag, 0, 2*Math.PI*CONV_FN, CONV_ZETA*1.4);
+      integrate(quant, dt, ag, 2*Math.PI*CONV_FN, CONV_ZETA*1.4);
     }else{
-      // SKYHOOK: damping acts on the structure's ABSOLUTE velocity (v+vg),
-      // i.e. against inertial space, like an active maglev stabilizer. This
-      // kills the soft-suspension transient quickly without re-coupling to the
-      // ground at high frequency, so the building settles AND barely transmits.
-      integrate(quant, dt, ag, vg, 2*Math.PI*ISO_FN, ISO_ZETA);
+      integrateIso(quant, dt, ag);
     }
   }
 
-  function integrate(b, dt, ag, skyVel, wn, zeta){
+  // QuantLev (isolated): integrate the structure's ABSOLUTE motion directly as a
+  // small, well-damped response to a fraction of the ground acceleration. A very-soft
+  // relative isolator has a slow rigid-body mode that gets kicked at startup and drifts;
+  // this formulation has no such mode, so the building only ever twitches slightly and
+  // settles fast — it barely shakes.
+  function integrateIso(b, dt, ag){
+    const wn = 2*Math.PI*ISO_CORNER, zeta = ISO_ZETA;
+    const N=4, h=dt/N;
+    for(let i=0;i<N;i++){
+      const acc = -2*zeta*wn*b.av - wn*wn*b.a + ISO_COUPLE*ag;
+      b.av += acc*h;
+      b.a  += b.av*h;
+    }
+    b.u = b.a - xg;   // store as relative so the existing abs = xg + u reads back as b.a
+  }
+
+  function integrate(b, dt, ag, wn, zeta){
     // substep for stability near resonance
     const N=4, h=dt/N;
     for(let i=0;i<N;i++){
-      const acc = -2*zeta*wn*(b.v + skyVel) - wn*wn*b.u - ag;
+      const acc = -2*zeta*wn*b.v - wn*wn*b.u - ag;
       b.v += acc*h;
       b.u += b.v*h;
     }
   }
 
   // ---------------------------------------------------------------
-  // drawing
+  // drawing — ink line-art on chart paper
   // ---------------------------------------------------------------
   function draw(){
     ctx.clearRect(0,0,W,H);
     const groundY = H*0.80;
 
-    // fixed world-frame reference grid (so a still building reads as "still")
-    ctx.lineWidth=1;
-    ctx.strokeStyle="rgba(255,255,255,0.035)";
-    for(let x=(W/2)%60; x<W; x+=60){
-      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,groundY); ctx.stroke();
-    }
+    // fixed world-frame chart grid (so a still building reads as "still")
+    ctx.lineWidth=1; ctx.strokeStyle=C["--grid"];
+    for(let x=(W/2)%28; x<W; x+=28){ vline(x,0,groundY); }
+    for(let y=groundY; y>0; y-=28){ hline(0,W,y); }
 
     // ground band (translates with xg so the shaking is visible)
     drawGround(groundY);
 
     const xL = W*0.27, xR = W*0.73;
     const bw = Math.min(120, W*0.16);
-    const bh = groundY - H*0.12;
+    const bh = groundY - H*0.17;
 
     // section labels
-    label(xL, H*0.085, "CONVENTIONAL", "FIXED BASE", "var(--amber)");
-    label(xR, H*0.085, "QUANTLEV", failed? "COOLING FAILED" : "LEVITATED",
-          failed? "var(--red)" : "var(--cyan)");
+    label(xL, H*0.072, "CONVENTIONAL", "FIXED BASE", C["--conv"]);
+    label(xR, H*0.072, "QUANTLEV", failed? "COOLING FAILED" : "LEVITATED",
+          failed? C["--fail"] : C["--quant"]);
 
     // ---- conventional: base rides ground (xg), top drifts by u ----
     const failPx = bh*U_FAIL_FRAC;
     if(Math.abs(conv.u)>failPx) conv.broken=true;
     const cu = conv.broken ? clamp(conv.u,-failPx*1.15,failPx*1.15) : conv.u;
-    drawBuilding(xL, groundY, bw, bh, xg, cu, getCss("--amber"), conv.broken);
+    drawBuilding(xL, groundY, bw, bh, xg, cu, C["--conv"], conv.broken);
 
     // ---- QuantLev: magnet array on ground + floating building ----
     const gap = failed ? 2 : Math.max(10, bh*0.05);
     drawMagnet(xR, groundY, bw, xg, failed);
     // isolated building barely moves in absolute space: abs = xg + u  (u ~ -xg)
     const qAbs = failed ? xg : (xg + quant.u);
-    drawBuilding(xR, groundY-gap, bw, bh, qAbs, 0, getCss("--cyan"), false, !failed);
+    drawBuilding(xR, groundY-gap, bw, bh, qAbs, 0, C["--quant"], false, !failed);
     if(!failed) drawGap(xR, groundY, bw, gap, qAbs);
-
-    // feed the seismograph: top-of-structure motion in the world frame
-    lastConvAbs = xg + conv.u;
-    lastQuantAbs = qAbs;
-  }
-
-  // ---------------------------------------------------------------
-  // signature — live dual-trace seismograph strip
-  // ---------------------------------------------------------------
-  function pushTrace(){
-    const maxN = Math.ceil(TW/TRACE_STEP)+2;
-    traceC.push(lastConvAbs); traceQ.push(lastQuantAbs);
-    while(traceC.length>maxN){ traceC.shift(); traceQ.shift(); }
-  }
-
-  function drawTrace(){
-    tctx.clearRect(0,0,TW,TH);
-    const mid = TH/2, band = TH*0.40, KNEE = 80;
-    // tanh soft-clip: small motion stays ~linear, large peaks compress smoothly
-    // toward the band edge instead of flat-topping, like a real seismograph.
-    const map = v => mid - band*Math.tanh(v/KNEE);
-    // faint scrolling grid + centerline (drum-recorder feel)
-    tctx.lineWidth=1;
-    tctx.strokeStyle = withAlpha(getCss("--ink"),0.035);
-    for(let gx=TW%40; gx<TW; gx+=40){ tctx.beginPath(); tctx.moveTo(gx,0); tctx.lineTo(gx,TH); tctx.stroke(); }
-    tctx.strokeStyle = withAlpha(getCss("--ink"),0.13);
-    tctx.beginPath(); tctx.moveTo(0,mid); tctx.lineTo(TW,mid); tctx.stroke();
-
-    const poly = (arr,color,lw,glow)=>{
-      const n=arr.length; if(n<2) return;
-      tctx.save();
-      tctx.lineWidth=lw; tctx.strokeStyle=color; tctx.lineJoin="round"; tctx.lineCap="round";
-      if(glow){ tctx.shadowColor=color; tctx.shadowBlur=9; }
-      tctx.beginPath();
-      for(let i=0;i<n;i++){
-        const x = TW - (n-1-i)*TRACE_STEP;
-        const y = map(arr[i]);
-        i? tctx.lineTo(x,y) : tctx.moveTo(x,y);
-      }
-      tctx.stroke();
-      tctx.restore();
-    };
-    poly(traceC, getCss("--amber"), 1.6, false);   // conventional: the wild trace
-    poly(traceQ, getCss("--cyan"), 2.0, true);      // quantlev: the flat line, glowing on top
   }
 
   function drawGround(groundY){
-    ctx.fillStyle="#0a0f18";
+    // soil band
+    ctx.fillStyle=C["--paper3"];
     ctx.fillRect(0,groundY,W,H-groundY);
-    ctx.strokeStyle="rgba(120,150,190,0.25)";
-    ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(0,groundY); ctx.lineTo(W,groundY); ctx.stroke();
-    // moving hatch
-    ctx.strokeStyle="rgba(120,150,190,0.16)";
-    ctx.lineWidth=1;
+    // ink baseline
+    ctx.strokeStyle=withAlpha(C["--ink"],0.6); ctx.lineWidth=2;
+    hline(0,W,groundY);
+    // moving diagonal hatch — the ground sliding underfoot
+    ctx.strokeStyle=withAlpha(C["--ink"],0.12); ctx.lineWidth=1;
     const off = xg % 26;
     for(let x=-26+off; x<W+26; x+=26){
       ctx.beginPath(); ctx.moveTo(x,groundY+4); ctx.lineTo(x-14,H); ctx.stroke();
@@ -516,14 +462,14 @@
       const off = baseOff + drift*frac;
       const y = baseY - (i+1)*fh;
       const x = cx + off - half;
-      // floor slab
-      ctx.fillStyle = shade(color, 0.16 + 0.04*(i%2));
-      roundRect(x, y+2, w, fh-3, 3); ctx.fill();
+      // floor slab — light tint of the pen colour on paper
+      ctx.fillStyle = withAlpha(color, 0.10 + 0.03*(i%2));
+      roundRect(x, y+2, w, fh-3, 2.5); ctx.fill();
       // outline
-      ctx.strokeStyle = shade(color, 0.55);
-      ctx.lineWidth=1.2; roundRect(x, y+2, w, fh-3, 3); ctx.stroke();
+      ctx.strokeStyle = color;
+      ctx.lineWidth=1.3; roundRect(x, y+2, w, fh-3, 2.5); ctx.stroke();
       // windows
-      ctx.fillStyle = shade(color, 0.7);
+      ctx.fillStyle = withAlpha(color, 0.5);
       const cols=3;
       for(let c=0;c<cols;c++){
         const wx = x + (c+0.5)*(w/cols) - 3;
@@ -533,36 +479,41 @@
     // roof cap
     const topOff = baseOff + drift;
     ctx.fillStyle = color;
-    roundRect(cx+topOff-half-3, baseY-h-4, w+6, 6, 3); ctx.fill();
+    roundRect(cx+topOff-half-3, baseY-h-4, w+6, 6, 2); ctx.fill();
 
     if(glowBase){
-      ctx.fillStyle = withAlpha(color,0.9);
-      ctx.fillRect(cx+baseOff-half, baseY-2, w, 4);
+      // luminous underside — the levitation signature
+      ctx.save();
+      ctx.shadowColor = withAlpha(color, reduceMotion?0.5:0.7); ctx.shadowBlur = 10;
+      ctx.fillStyle = color;
+      ctx.fillRect(cx+baseOff-half, baseY-3, w, 3);
+      ctx.restore();
     }
     if(broken) drawCracks(cx+baseOff, baseY, w, h, drift);
     ctx.restore();
   }
 
   function drawCracks(cx, baseY, w, h, drift){
-    ctx.strokeStyle=getCss("--red"); ctx.lineWidth=2;
+    ctx.strokeStyle=C["--fail"]; ctx.lineWidth=2;
     ctx.beginPath();
     let x=cx-w*0.2, y=baseY;
     ctx.moveTo(x,y);
     for(let k=0;k<5;k++){ x+=(k%2?18:-12); y-=h*0.16; ctx.lineTo(x,y); }
     ctx.stroke();
-    ctx.font="700 13px "+getCss("--mono");
-    ctx.fillStyle=getCss("--red"); ctx.textAlign="center";
+    ctx.font="700 12px "+cssFont(C["--mono"]);
+    ctx.fillStyle=C["--fail"]; ctx.textAlign="center";
     ctx.fillText("STRUCTURAL FAILURE", cx+drift*0.5, baseY-h-18);
   }
 
   function drawMagnet(cx, groundY, w, off, failed){
     const mw=w*1.18, mh=18, x=cx+off-mw/2, y=groundY-mh;
-    ctx.fillStyle = failed ? "#3a2630" : "#10303a";
-    roundRect(x,y,mw,mh,4); ctx.fill();
-    ctx.strokeStyle = failed ? withAlpha(getCss("--red"),.6) : withAlpha(getCss("--cyan"),.55);
-    ctx.lineWidth=1.5; roundRect(x,y,mw,mh,4); ctx.stroke();
+    const tint = failed ? C["--conv"] : C["--quant"];
+    ctx.fillStyle = withAlpha(tint, 0.14);
+    roundRect(x,y,mw,mh,3); ctx.fill();
+    ctx.strokeStyle = withAlpha(tint,.85);
+    ctx.lineWidth=1.5; roundRect(x,y,mw,mh,3); ctx.stroke();
     // HTS module ticks
-    ctx.fillStyle = failed ? withAlpha(getCss("--red"),.5):withAlpha(getCss("--cyan"),.5);
+    ctx.fillStyle = withAlpha(tint,.6);
     for(let i=0;i<6;i++) ctx.fillRect(x+8+i*(mw-16)/5, y+5, 7, mh-10);
   }
 
@@ -571,13 +522,14 @@
     const magTopY=groundY-18;
     const baseY=groundY-gap;
     const pulse = reduceMotion?0.5:(0.5+0.5*Math.sin(t*4));
+    const cyan = C["--quant"];
     const g=ctx.createLinearGradient(0,baseY,0,magTopY);
-    g.addColorStop(0, withAlpha(getCss("--cyan"),0.0));
-    g.addColorStop(1, withAlpha(getCss("--cyan"),0.35+0.25*pulse));
+    g.addColorStop(0, withAlpha(cyan,0.0));
+    g.addColorStop(1, withAlpha(cyan,0.4+0.25*pulse));
     ctx.fillStyle=g;
     ctx.fillRect(cx+Math.min(xg,bldgOff)-w/2-6, magTopY-2, w+12+Math.abs(xg-bldgOff), gap+4);
-    // field lines hint
-    ctx.strokeStyle=withAlpha(getCss("--cyan"),0.4+0.3*pulse);
+    // field lines hint — shear as the ground slides under the fixed building
+    ctx.strokeStyle=withAlpha(cyan,0.45+0.3*pulse);
     ctx.lineWidth=1;
     for(let i=0;i<3;i++){
       const fx=cx+bldgOff-w/2+ (i+1)*(w/4);
@@ -587,25 +539,27 @@
 
   function label(cx, y, line1, line2, color){
     ctx.textAlign="center";
-    ctx.font="700 13px "+getCss("--mono");
-    ctx.fillStyle=getCss("--ink");
+    ctx.font="600 12px "+cssFont(C["--mono"]);
+    ctx.fillStyle=C["--ink"];
     ctx.fillText(line1, cx, y);
-    ctx.font="600 11px "+getCss("--mono");
-    ctx.fillStyle=color.startsWith("var")?getCss(color.slice(4,-1)):color;
+    ctx.font="500 10.5px "+cssFont(C["--mono"]);
+    ctx.fillStyle=color;
     ctx.fillText(line2, cx, y+15);
   }
 
   // ---------------------------------------------------------------
   // helpers
   // ---------------------------------------------------------------
+  function vline(x,y0,y1){ ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke(); }
+  function hline(x0,x1,y){ ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); }
   function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y);
     ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
     ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
   function getCss(n){ return n.startsWith("--")? getComputedStyle(document.documentElement).getPropertyValue(n).trim() : n; }
+  function cssFont(stack){ return stack || "monospace"; }
   function withAlpha(hex,a){ const c=hexToRgb(hex); return `rgba(${c.r},${c.g},${c.b},${a})`; }
-  function shade(hex,f){ const c=hexToRgb(hex); return `rgb(${Math.round(c.r*f)},${Math.round(c.g*f)},${Math.round(c.b*f)})`; }
-  function hexToRgb(h){ h=h.replace("#",""); if(h.length===3)h=h.split("").map(x=>x+x).join("");
+  function hexToRgb(h){ h=(h||"#000").replace("#",""); if(h.length===3)h=h.split("").map(x=>x+x).join("");
     const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
 
   // ---------------------------------------------------------------
@@ -613,13 +567,19 @@
   // ---------------------------------------------------------------
   function updateReadouts(){
     els.freq.textContent = freq.toFixed(2);
-    const convCm = Math.abs(conv.broken?conv.u:conv.u)/PX_PER_CM;
+    const convCm = Math.abs(conv.u)/PX_PER_CM;
     const quantAbs = failed? Math.abs(xg) : Math.abs(xg+quant.u);
     const quantCm = quantAbs/PX_PER_CM;
     conv.peak=Math.max(conv.peak,convCm); quant.peak=Math.max(quant.peak,quantCm);
 
-    els.conv.textContent = convCm.toFixed(convCm<10?1:0);
-    els.quant.textContent = quantCm.toFixed(quantCm<10?1:0);
+    // peak-hold with slow decay: the gauges read the recent sway amplitude, not the
+    // instantaneous value (which crosses zero every half cycle and would flicker).
+    const env = running ? 0.985 : 0.9;
+    convEnv  = Math.max(convCm,  convEnv*env);
+    quantEnv = Math.max(quantCm, quantEnv*env);
+
+    els.conv.textContent = convEnv.toFixed(convEnv<10?1:0);
+    els.quant.textContent = quantEnv.toFixed(quantEnv<10?1:0);
 
     // resonance proximity
     const near = Math.abs(freq-CONV_FN);
@@ -629,8 +589,8 @@
 
     // conventional status
     if(conv.broken){ els.convStat.textContent="FAILURE"; els.convStat.className="status bad"; }
-    else if(convCm>14){ els.convStat.textContent="DANGER"; els.convStat.className="status bad"; }
-    else if(convCm>5){ els.convStat.textContent="SWAYING"; els.convStat.className="status warn"; }
+    else if(convEnv>14){ els.convStat.textContent="DANGER"; els.convStat.className="status bad"; }
+    else if(convEnv>5){ els.convStat.textContent="SWAYING"; els.convStat.className="status warn"; }
     else { els.convStat.textContent="STABLE"; els.convStat.className="status warn"; }
 
     // quantlev status
@@ -638,8 +598,8 @@
     else { els.quantStat.textContent="LEVITATED"; els.quantStat.className="status ok"; }
 
     // efficiency
-    if(running && convCm>1.5){
-      const eff=clamp((1-quantCm/convCm)*100,0,99.9);
+    if(running && convEnv>1.5){
+      const eff=clamp((1-quantEnv/convEnv)*100,0,99.9);
       els.eff.textContent=eff.toFixed(0);
       els.effStat.textContent= failed?"isolation lost":"vs. conventional";
       els.effStat.className= failed?"status bad":"status ok";
@@ -647,6 +607,90 @@
 
     flash.classList.toggle("on", conv.broken && running);
   }
+
+  // ---------------------------------------------------------------
+  // seismograph trace (the signature) — chart paper, plotter pens,
+  // recording stylus at the right edge
+  // ---------------------------------------------------------------
+  function pushTrace(){
+    if(!WW) return;
+    // absolute (world-frame) sway of each building's top floor, in px
+    histConv.push(xg + conv.u);
+    histQuant.push(failed ? xg : (xg + quant.u));
+    while(histConv.length>WW){ histConv.shift(); histQuant.shift(); }
+  }
+
+  function drawWave(){
+    if(!WW) return;
+    wctx.clearRect(0,0,WW,WH);
+    const midY = Math.round(WH*0.5)+0.5;
+    const vScale = (WH*0.46)/72;       // world px -> px on strip (clips gracefully at big sway)
+    const lim = WH*0.47;
+
+    // chart-paper ruling: minor grid both axes, then major every 50px
+    wctx.lineWidth=1; wctx.strokeStyle=C["--grid"];
+    for(let gx=WW%10; gx<WW; gx+=10) wline(gx,0,gx,WH);
+    for(let gy=midY%10; gy<WH; gy+=10) wline(0,gy,WW,gy);
+    wctx.strokeStyle=C["--grid2"];
+    for(let gx=WW%50; gx<WW; gx+=50) wline(gx,0,gx,WH);
+
+    // zero baseline
+    wctx.strokeStyle=withAlpha(C["--ink"],0.45); wctx.lineWidth=1.2;
+    wline(0,midY,WW,midY);
+
+    // y-axis displacement scale (cm)
+    const pxPerCm = PX_PER_CM*vScale;
+    wctx.fillStyle=withAlpha(C["--ink-soft"],0.85);
+    wctx.font="500 9px "+cssFont(C["--mono"]); wctx.textAlign="left";
+    for(let cm=10; cm<=20; cm+=10){
+      for(const s of [-1,1]){
+        const y=midY - s*cm*pxPerCm;
+        if(y>11 && y<WH-4){
+          wctx.strokeStyle=withAlpha(C["--ink"],0.18); wctx.lineWidth=1;
+          wline(0,y,7,y);
+          wctx.fillText(cm+"", 9, y+3);
+        }
+      }
+    }
+
+    plotTrace(histConv,  C["--conv"],  vScale, midY, 1.8);
+    plotTrace(histQuant, C["--quant"], vScale, midY, 1.6);
+
+    drawStylus(vScale, midY, lim);
+  }
+
+  function plotTrace(arr, color, vScale, midY, lw){
+    const n=arr.length; if(n<2) return;
+    const x0 = WW - n;              // newest sample pinned to the right edge
+    const lim = WH*0.47;
+    wctx.lineWidth=lw; wctx.strokeStyle=color; wctx.lineJoin="round";
+    wctx.beginPath();
+    for(let i=0;i<n;i++){
+      const y = midY - clamp(arr[i]*vScale, -lim, lim);
+      if(i===0) wctx.moveTo(x0+i,y); else wctx.lineTo(x0+i,y);
+    }
+    wctx.stroke();
+  }
+
+  // recording head at the right edge with a glowing pen dot for each trace
+  function drawStylus(vScale, midY, lim){
+    const x = WW-1.5;
+    wctx.strokeStyle=withAlpha(C["--ink"],0.35); wctx.lineWidth=1;
+    wline(x,0,x,WH);
+    const pulse = reduceMotion?1:(0.65+0.35*Math.sin(t*6));
+    dot(x, histConv,  C["--conv"],  vScale, midY, lim, pulse);
+    dot(x, histQuant, C["--quant"], vScale, midY, lim, pulse);
+  }
+  function dot(x, arr, color, vScale, midY, lim, pulse){
+    if(!arr.length) return;
+    const y = midY - clamp(arr[arr.length-1]*vScale, -lim, lim);
+    wctx.save();
+    wctx.shadowColor=withAlpha(color,0.8*pulse); wctx.shadowBlur=7*pulse;
+    wctx.fillStyle=color;
+    wctx.beginPath(); wctx.arc(x,y,3,0,Math.PI*2); wctx.fill();
+    wctx.restore();
+  }
+  function wline(a,b,c,d){ wctx.beginPath(); wctx.moveTo(a,b); wctx.lineTo(c,d); wctx.stroke(); }
 
   // ---------------------------------------------------------------
   // loop
@@ -659,7 +703,7 @@
     step(dt);
     draw();
     pushTrace();
-    drawTrace();
+    drawWave();
     updateReadouts();
     requestAnimationFrame(frame);
   }
@@ -677,10 +721,11 @@
   });
 
   document.getElementById("reset").addEventListener("click", ()=>{
-    running=false; t=0; xg=0; env=0; failed=false;
+    running=false; t=0; xg=0; failed=false;
     Object.assign(conv,{u:0,v:0,peak:0,broken:false});
-    Object.assign(quant,{u:0,v:0,peak:0});
-    traceC.length=0; traceQ.length=0; lastConvAbs=0; lastQuantAbs=0;
+    Object.assign(quant,{u:0,v:0,peak:0,a:0,av:0});
+    convEnv=0; quantEnv=0;
+    histConv.length=0; histQuant.length=0;
     document.getElementById("fail").checked=false;
     shakeBtn.textContent="Start shaking"; shakeBtn.classList.remove("running");
     shakeBtn.setAttribute("aria-pressed","false");
@@ -705,12 +750,16 @@
   document.getElementById("fail").addEventListener("change", e=>{
     failed = e.target.checked;
     if(failed){ quant.u=conv.u*0.3; quant.v=conv.v*0.3; }  // hand off some motion
+    else { quant.a=xg+quant.u; quant.av=0; }               // resync isolated abs state, no jump
   });
 
   // init
-  resize(); 
+  readTheme();
+  resize();
   els.magVal.textContent=magG.toFixed(2)+" g";
   els.freqVal.textContent=freq.toFixed(2)+" Hz";
+  // fonts may load slightly after first paint — refresh cached metrics/colors
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(readTheme); }
   requestAnimationFrame(frame);
 })();
 </script>
